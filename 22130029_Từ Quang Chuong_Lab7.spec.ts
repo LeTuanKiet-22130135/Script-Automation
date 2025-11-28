@@ -1,3 +1,4 @@
+// Playwright end-to-end tests for Product Detail & Wishlist flows (Lab 7)
 import { test, expect, Page, Locator } from '@playwright/test';
 
 const HOME_ROUTE = '/common/home';
@@ -26,7 +27,9 @@ async function openFirstProduct(page: Page) {
   
   // Đợi trang chi tiết load hoàn toàn
   await page.waitForLoadState('domcontentloaded');
-  await page.waitForTimeout(2000); // Đợi render
+  await page.waitForTimeout(2000); 
+
+
 }
 
 async function login(
@@ -509,7 +512,8 @@ test.describe('Ecommerce Playground - Product detail', () => {
       console.log(`✓ Main image displays clearly after clicking thumbnail`);
     } else {
       console.log('⚠ Product has only one image, skipping thumbnail test');
-      // Test vẫn pass nếu chỉ có 1 ảnh
+      // Test vẫn pass nếu chỉ có 1 ảnhh
+
     }
   });
 
