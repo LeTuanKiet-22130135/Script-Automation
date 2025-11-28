@@ -1,0 +1,34 @@
+{
+  "invalidAddresses": [
+    {
+      "scenario": "Address too short",
+      "firstname": "Le",
+      "lastname": "kiet",
+      "address": "aa",
+      "city": "Hanoi",
+      "postcode": "123456",
+      "expectedError": "Address must be between 3 and 128 characters!"
+    },
+    {
+      "scenario": "City too short",
+      "firstname": "Le",
+      "lastname": "kiet",
+      "address": "Valid Address 123",
+      "city": "b",
+      "postcode": "123456",
+      "expectedError": "City must be between 2 and 128 characters!"
+    }
+  ],
+  "invalidPasswords": [
+    { 
+      "length": "3 chars (Too Short)", 
+      "pass": "123", 
+      "error": "Password must be between 4 and 20 characters!" 
+    },
+    { 
+      "length": "21 chars (Too Long)", 
+      "pass": "123456789012345678901", 
+      "error": "Password must be between 4 and 20 characters!" 
+    }
+  ]
+}
