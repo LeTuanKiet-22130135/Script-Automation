@@ -1,5 +1,5 @@
 // Playwright end-to-end tests for Product Detail & Wishlist flows (Lab 7)
-import { test, expect, Page, Locator } from '@playwright/test';
+const { test, expect } = require('@playwright/test');
 
 const HOME_ROUTE = '/common/home';
 
@@ -7,36 +7,34 @@ const HOME_ROUTE = '/common/home';
 const LOGIN_EMAIL = 'tqc77@gmail.com';
 const LOGIN_PASSWORD = 'Tqc1234#';
 
-async function openFirstProduct(page: Page) {
+async function openFirstProduct(page) {
   // Đợi danh sách sản phẩm load
   await page.waitForSelector('.product-thumb, .product-layout, .product-item', { state: 'visible' });
-  
+
   // Tìm sản phẩm đầu tiên với nhiều selector options
   const productCard = page.locator('.product-thumb, .product-layout, .product-item').first();
   await expect(productCard, 'Product list should render at least one item').toBeVisible({ timeout: 15000 });
-  
+
   // Tìm link sản phẩm - thử nhiều cách
   const productLink = productCard.locator('a[href*="product"], .image a, .caption a, h4 a, .name a, a').first();
   await expect(productLink, 'Product link should be visible').toBeVisible({ timeout: 5000 });
-  
+
   // Click và đợi navigation
   await Promise.all([
     page.waitForURL(/route=product\/product/, { timeout: 15000 }),
     productLink.click()
   ]);
-  
+
   // Đợi trang chi tiết load hoàn toàn
   await page.waitForLoadState('domcontentloaded');
-  await page.waitForTimeout(2000); 
-
-
+  await page.waitForTimeout(2000);
 }
 
 async function login(
-  page: Page,
-  email: string = LOGIN_EMAIL,
-  password: string = LOGIN_PASSWORD,
-  options?: { verifySession?: boolean }
+  page,
+  email = LOGIN_EMAIL,
+  password = LOGIN_PASSWORD,
+  options
 ) {
   await page.goto('https://ecommerce-playground.lambdatest.io/index.php?route=account/login');
   await page.waitForLoadState('domcontentloaded');
@@ -89,7 +87,7 @@ async function login(
   }
 }
 
-async function verifySession(page: Page): Promise<boolean> {
+async function verifySession(page) {
   try {
     const currentUrl = page.url();
     await page.goto('/index.php?route=account/account', { waitUntil: 'domcontentloaded' });
@@ -107,7 +105,7 @@ async function verifySession(page: Page): Promise<boolean> {
   }
 }
 
-async function ensureLoggedOut(page: Page) {
+async function ensureLoggedOut(page) {
   try {
     await page.context().clearCookies();
   } catch (error) {
@@ -132,7 +130,7 @@ async function ensureLoggedOut(page: Page) {
   }
 }
 
-async function isLocatorInteractable(locator: Locator | null | undefined): Promise<boolean> {
+async function isLocatorInteractable(locator) {
   if (!locator) return false;
   try {
     if (!(await locator.isVisible())) {
@@ -145,7 +143,7 @@ async function isLocatorInteractable(locator: Locator | null | undefined): Promi
   }
 }
 
-async function isInsideRelatedSection(locator: Locator): Promise<boolean> {
+async function isInsideRelatedSection(locator) {
   try {
     return (
       (await locator
@@ -157,7 +155,7 @@ async function isInsideRelatedSection(locator: Locator): Promise<boolean> {
   }
 }
 
-async function addProductFromHomeCard(page: Page, clickCount: number = 1): Promise<string> {
+async function addProductFromHomeCard(page, clickCount = 1) {
   await page.goto(HOME_ROUTE);
   await page.waitForLoadState('domcontentloaded');
   await page.waitForTimeout(1000);
@@ -191,7 +189,7 @@ async function addProductFromHomeCard(page: Page, clickCount: number = 1): Promi
   return productNameText;
 }
 
-async function getProductNameFromCard(productCard: Locator): Promise<string> {
+async function getProductNameFromCard(productCard) {
   const candidateSelectors = ['.name', 'h4', '.product-name', 'a[title]', 'a'];
   const attributeCandidates = ['data-original-title', 'title', 'data-name', 'aria-label'];
 
@@ -222,7 +220,7 @@ async function getProductNameFromCard(productCard: Locator): Promise<string> {
   throw new Error('Unable to extract product name from card');
 }
 
-async function openWishlistFromHeader(page: Page): Promise<void> {
+async function openWishlistFromHeader(page) {
   const headerWishlistIcon = page
     .locator('header a[href*="wishlist"], header .wishlist, header i.fa-heart, header [title*="wish" i], header [aria-label*="wish" i]')
     .first();
@@ -237,7 +235,7 @@ async function openWishlistFromHeader(page: Page): Promise<void> {
   await page.waitForTimeout(2000);
 }
 
-async function verifyWishlistSuccessAlert(page: Page): Promise<void> {
+async function verifyWishlistSuccessAlert(page) {
   const successAlert = page
     .locator(
       '.alert-success, .alert.alert-success, [class*="alert"][class*="success"], .alert:has-text("Success"), div:has-text("Success"), div:has-text("added"), div:has-text("wish list")'
@@ -253,7 +251,7 @@ async function verifyWishlistSuccessAlert(page: Page): Promise<void> {
   }
 }
 
-async function ensureProductInWishlist(page: Page, productName: string): Promise<void> {
+async function ensureProductInWishlist(page, productName) {
   const wishlistProducts = page.locator('.product-thumb, .product-layout, .product-item, .table tbody tr');
   const productCount = await wishlistProducts.count();
   let productFound = false;
@@ -270,7 +268,7 @@ async function ensureProductInWishlist(page: Page, productName: string): Promise
   expect(productFound, `Product "${productName}" should appear in wishlist`).toBeTruthy();
 }
 
-async function findWishlistHeartButton(page: Page): Promise<ReturnType<Page['locator']>> {
+async function findWishlistHeartButton(page) {
   const prioritizedPrimarySelector =
     '#product-product .entry-content.content-image button.btn-wishlist, #product-product .entry-content.content-image .btn.btn-wishlist';
   const primaryButton = page.locator(prioritizedPrimarySelector).first();
@@ -553,7 +551,7 @@ test.describe('Ecommerce Playground - Product detail', () => {
         return false;
       }
     };
-    const ensureDirectImageVisible = async (targetPage: Page) => {
+    const ensureDirectImageVisible = async (targetPage) => {
       const candidateImage = targetPage.locator('img').first();
       await expect(candidateImage, 'Direct zoom image should be visible').toBeVisible({ timeout: 5000 });
       const candidateSrc = (await candidateImage.getAttribute('src')) || targetPage.url();
@@ -640,7 +638,7 @@ test.describe('Ecommerce Playground - Product detail', () => {
         await expect(targetMedia, 'Zoomed media should be visible').toBeVisible({ timeout: 5000 });
         const zoomSrc =
           (await targetMedia.getAttribute('src')) ||
-          (await targetMedia.evaluate((el: HTMLElement) => el.style.backgroundImage || el.getAttribute('data-src'))) ||
+          (await targetMedia.evaluate((el) => el.style.backgroundImage || el.getAttribute('data-src'))) ||
           '';
         console.log(`✓ Zoom overlay opened with media: ${zoomSrc || 'background-image element'}`);
       } else {
@@ -1057,4 +1055,3 @@ test.describe('Ecommerce Playground - Wishlist', () => {
     await ensureProductInWishlist(page, firstProductName);
   });
 });
-
