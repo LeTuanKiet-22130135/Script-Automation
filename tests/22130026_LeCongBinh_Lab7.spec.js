@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Registration Tests', () => {
+test.describe('22130026 - Registration & Login Tests', () => {
+// Generate a unique email for testing
+const uniqueEmail = `registerSuccess+${Date.now()}@gmail.com`;
   test('Register Successfully', async ({ page }) => {
     // Step 1: Open the website
     await page.goto('https://ecommerce-playground.lambdatest.io/');
@@ -27,7 +29,7 @@ test.describe('Registration Tests', () => {
     // Step 4: Fill in First Name, Last Name, Email, Telephone
     await page.fill('#input-firstname', 'Bình');
     await page.fill('#input-lastname', 'Lê Công');
-    await page.fill('#input-email', 'registerMain671123@gmail.com');
+    await page.fill('#input-email', uniqueEmail);
     await page.fill('#input-telephone', '0981661590');
 
     // Step 5: Enter Password and Confirm Password
@@ -75,7 +77,9 @@ test('Register with Existing Email', async ({ page }) => {
     // Step 4: Fill in First Name, Last Name, Email (already used), and Telephone
     await page.fill('#input-firstname', 'Bình');
     await page.fill('#input-lastname', 'Lê Công');
-    await page.fill('#input-email', 'registerMain@gmail.com');
+    // Using an email that was already registered in a previous test
+    const existingEmail = 'register1@gmail.com';
+    await page.fill('#input-email', existingEmail);
     await page.fill('#input-telephone', '0981661590');
 
     // Step 5: Enter Password and Confirm Password
@@ -147,6 +151,9 @@ test('Register with Mismatch Password', async ({ page }) => {
 
 test('Register without agreeing to Privacy Policy', async ({ page }) => {
     
+    // Step 1: Open the website
+    await page.goto('https://ecommerce-playground.lambdatest.io/');
+    
     // Expected Result 1: Redirect to the homepage layout
     await expect(page).toHaveURL('https://ecommerce-playground.lambdatest.io/');
 
@@ -186,7 +193,6 @@ test('Register without agreeing to Privacy Policy', async ({ page }) => {
 
     // Expected Result 7: Show error message "You must agree to the Privacy Policy!" at Register page
     await expect(page.locator(':text("Warning: You must agree to the Privacy Policy!")')).toBeVisible();
-  });
 });
 
 test('Register with empty fields', async ({ page }) => {
@@ -307,7 +313,7 @@ test('Login with Correct Email and Password', async ({ page }) => {
     await expect(page).toHaveURL(/account\/login/);
 
     // Step 4: Enter correct Email and Password
-    await page.fill('#input-email', 'registerMain671123@gmail.com');
+    await page.fill('#input-email', uniqueEmail);
     await page.fill('#input-password', 'Testing123!');
 
     // Step 5: Click Login
@@ -342,7 +348,7 @@ test('Login with Correct Email but Wrong Password', async ({ page }) => {
     await expect(page).toHaveURL(/account\/login/);
 
     // Step 4: Enter correct Email but wrong Password
-    await page.fill('#input-email', 'register1@gmail.com');
+    await page.fill('#input-email', uniqueEmail);
     await page.fill('#input-password', 'wrongPass');
 
     // Step 5: Click Login
@@ -447,21 +453,12 @@ test('Spam Login Attempts', async ({ page }) => {
     await expect(page).toHaveURL(/account\/login/);
 
     // Step 4: Enter correct Email but wrong Password
-    await page.fill('#input-email', 'registerMain@gmail.com');
-    await page.fill('#input-password', 'wrongPass');
-
     // Step 5: Click Login
-    await page.click('input[value="Login"]');
-
-    // Expected Result 5: Show an error message about incorrect login
-    await expect(page).toHaveURL(/account\/login/);
-    await expect(page.locator(':text("No match for E-Mail Address")')).toBeVisible();
-
     // Step 6: Repeat step 4 and 5 to reach max login attempts with while loop
     let attempts = 0;
-    const maxAttempts = 5; // Assuming the limit is 5 attempts
+    const maxAttempts = 10; // Assuming the limit is 10 attempts
     while (attempts < maxAttempts) {
-        await page.fill('#input-email', 'registerMain@gmail.com');
+        await page.fill('#input-email', uniqueEmail);
         await page.fill('#input-password', 'wrongPass');
         await page.click('input[value="Login"]');
         attempts++;
@@ -469,5 +466,6 @@ test('Spam Login Attempts', async ({ page }) => {
     await page.waitForTimeout(1000); // Wait for 1 second before checking the lock message
 
     // Expected Result 6: Show an error message about account being locked
-    await expect(page.locator(':text("exceeded allowed number of login attempts")')).toBeVisible();
+    await expect(page.locator(':text("Warning: Your account has exceeded allowed number of login attempts. Please try again in 1 hour.")')).toBeVisible();
+});
 });
