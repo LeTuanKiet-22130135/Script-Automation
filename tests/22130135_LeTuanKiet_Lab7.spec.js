@@ -51,7 +51,7 @@ test.describe('Address Book & Password Tests (Mapped to Doc)', () => {
     page = await browser.newPage();
     console.log("--- Login ---");
     await page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login");
-    await page.fill("#input-email", 'user144@example.com'); // Ensure this user exists
+    await page.fill("#input-email", 'lekiet1900@qa.team'); // Ensure this user exists
     await page.fill("#input-password", '1234');
     await page.click("input[value='Login']");
     await expect(page).toHaveTitle(/My Account/);
